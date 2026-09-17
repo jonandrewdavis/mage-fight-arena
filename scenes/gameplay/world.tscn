@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://bd240dbppqbi6" path="res://networking/level_loader.gd" id="1_pvtv0"]
 [ext_resource type="Script" uid="uid://cd1b7rpxgj5d2" path="res://networking/player_spawner.gd" id="2_4np77"]
 [ext_resource type="Script" uid="uid://cjysm4dk35efg" path="res://scenes/gameplay/fly_cam.gd" id="4_m1wwn"]
+[ext_resource type="AudioStream" uid="uid://b3oyx14tsphfe" path="res://assets/sounds/Broom mouse 2.ogg" id="5_p5ost"]
 
 [node name="World" type="Node" unique_id=43387356]
 script = ExtResource("1_4np77")
@@ -25,3 +26,9 @@ script = ExtResource("4_m1wwn")
 [node name="Camera3D" type="Camera3D" parent="FlyCam" unique_id=2068350216]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 8.468)
 current = true
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1852843026]
+stream = ExtResource("5_p5ost")
+volume_db = -20.0
+autoplay = true
+bus = &"BGM"

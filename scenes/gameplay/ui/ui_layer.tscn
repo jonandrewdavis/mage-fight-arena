@@ -3,8 +3,9 @@
 [ext_resource type="Script" uid="uid://b83omkj4aqsph" path="res://scenes/gameplay/ui/ui_layer.gd" id="1_oq6q8"]
 [ext_resource type="PackedScene" uid="uid://nbqhuft1wkg8" path="res://scenes/gameplay/ui/controls.tscn" id="2_1aqtp"]
 [ext_resource type="PackedScene" uid="uid://barl4q1kugrmm" path="res://scenes/gameplay/ui/pause-layer/pause-layer.tscn" id="3_n2icj"]
-[ext_resource type="Script" path="res://scenes/gameplay/ui/target_hud.gd" id="4_thud"]
+[ext_resource type="Script" uid="uid://dxqqwm8pgyne2" path="res://scenes/gameplay/ui/target_hud.gd" id="4_thud"]
 [ext_resource type="Script" uid="uid://c13wkl6nlblwa" path="res://scenes/gameplay/ui/stick_reticle.gd" id="5_reticle"]
+[ext_resource type="Script" uid="uid://w8jjvnpkbut4" path="res://scenes/gameplay/ui/nose_indicator.gd" id="6_nose"]
 
 [sub_resource type="Gradient" id="Gradient_oq6q8"]
 colors = PackedColorArray(0.09736288, 9.126794e-05, 0.2960626, 1, 0.4272387, 0.31936294, 0.22836813, 1)
@@ -22,12 +23,6 @@ gradient = SubResource("Gradient_1aqtp")
 width = 15
 height = 120
 
-[sub_resource type="Gradient" id="Gradient_n2icj"]
-colors = PackedColorArray(0.5411765, 0, 0, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_4i8qy"]
-gradient = SubResource("Gradient_n2icj")
-
 [sub_resource type="Gradient" id="Gradient_health"]
 colors = PackedColorArray(0.4, 0, 0.05, 1, 1, 0.3, 0.3, 1)
 
@@ -44,6 +39,12 @@ gradient = SubResource("Gradient_mana")
 width = 15
 height = 120
 
+[sub_resource type="Gradient" id="Gradient_n2icj"]
+colors = PackedColorArray(0.5411765, 0, 0, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4i8qy"]
+gradient = SubResource("Gradient_n2icj")
+
 [node name="UILayer" type="CanvasLayer" unique_id=959767118]
 script = ExtResource("1_oq6q8")
 
@@ -56,7 +57,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TargetHud" type="Control" parent="PlayerUI"]
+[node name="TargetHud" type="Control" parent="PlayerUI" unique_id=1090235191]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -94,15 +95,15 @@ fill_mode = 3
 texture_under = SubResource("GradientTexture2D_pr2nu")
 texture_progress = SubResource("GradientTexture2D_yruvy")
 
-[node name="StatsMargin" type="MarginContainer" parent="PlayerUI/CenterContainer"]
+[node name="StatsMargin" type="MarginContainer" parent="PlayerUI/CenterContainer" unique_id=211233787]
 layout_mode = 2
 theme_override_constants/margin_left = 300
 
-[node name="StatsBars" type="HBoxContainer" parent="PlayerUI/CenterContainer/StatsMargin"]
+[node name="StatsBars" type="HBoxContainer" parent="PlayerUI/CenterContainer/StatsMargin" unique_id=1444868101]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HealthProgressBar" type="TextureProgressBar" parent="PlayerUI/CenterContainer/StatsMargin/StatsBars"]
+[node name="HealthProgressBar" type="TextureProgressBar" parent="PlayerUI/CenterContainer/StatsMargin/StatsBars" unique_id=1152464273]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.49411765)
 layout_mode = 2
@@ -111,7 +112,7 @@ fill_mode = 3
 texture_under = SubResource("GradientTexture2D_pr2nu")
 texture_progress = SubResource("GradientTexture2D_health")
 
-[node name="ManaProgressBar" type="TextureProgressBar" parent="PlayerUI/CenterContainer/StatsMargin/StatsBars"]
+[node name="ManaProgressBar" type="TextureProgressBar" parent="PlayerUI/CenterContainer/StatsMargin/StatsBars" unique_id=580641093]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.49411765)
 layout_mode = 2
@@ -132,7 +133,7 @@ value = 50.0
 fill_mode = 4
 texture_progress = SubResource("GradientTexture2D_4i8qy")
 
-[node name="StickReticle" type="Control" parent="PlayerUI"]
+[node name="StickReticle" type="Control" parent="PlayerUI" unique_id=1115752885]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -144,6 +145,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("5_reticle")
+
+[node name="NoseIndicator" type="Control" parent="PlayerUI" unique_id=1461917136]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_nose")
 
 [node name="MarginContainer" type="MarginContainer" parent="PlayerUI" unique_id=1386433855]
 layout_mode = 1
@@ -157,20 +169,18 @@ theme_override_constants/margin_bottom = 24
 [node name="Controls" parent="PlayerUI/MarginContainer" unique_id=1906408976 instance=ExtResource("2_1aqtp")]
 layout_mode = 2
 
-[node name="PauseLayer" parent="." unique_id=1173719922 instance=ExtResource("3_n2icj")]
+[node name="ArenaStatus" type="VBoxContainer" parent="PlayerUI" unique_id=170141365]
 visible = false
-
-[node name="ArenaStatus" type="VBoxContainer" parent="PlayerUI"]
-visible = false
+layout_mode = 0
 anchor_left = 0.5
-anchor_right = 0.5
 anchor_top = 0.18
+anchor_right = 0.5
 anchor_bottom = 0.18
 offset_left = -240.0
 offset_right = 240.0
 mouse_filter = 2
 
-[node name="ArenaWarning" type="Label" parent="PlayerUI/ArenaStatus"]
+[node name="ArenaWarning" type="Label" parent="PlayerUI/ArenaStatus" unique_id=1344930282]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
@@ -178,13 +188,15 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ArenaAllowance" type="ProgressBar" parent="PlayerUI/ArenaStatus"]
+[node name="ArenaAllowance" type="ProgressBar" parent="PlayerUI/ArenaStatus" unique_id=826528479]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2
 max_value = 1.0
 step = 0.001
 show_percentage = false
-mouse_filter = 2
+
+[node name="PauseLayer" parent="." unique_id=1173719922 instance=ExtResource("3_n2icj")]
+visible = false

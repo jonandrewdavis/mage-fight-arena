@@ -60,7 +60,8 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	draw_arc(size / 2.0, reticle_radius, 0.0, TAU, 24, bracket_color, 1.5)
+	# CENTER DOT REMOVED:
+	#draw_arc(size / 2.0, reticle_radius, 0.0, TAU, 24, bracket_color, 1.5)
 	for p in candidate_screens:
 		draw_circle(p, candidate_dot_radius, candidate_color)
 	if locked_visible:

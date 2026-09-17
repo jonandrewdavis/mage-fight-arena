@@ -251,6 +251,7 @@ func render_ui_layer_elements():
 		World.ui_layer.mana_progress_bar.max_value = mana.max_value
 		World.ui_layer.mana_progress_bar.value = mana.current
 		World.ui_layer.stick_reticle.update_stick(mouse_stick.display_value(), mouse_stick.radius_px, mouse_stick.dead_zone)
+		World.ui_layer.nose_indicator.update_nose(global_position, -basis.z, self)
 		World.ui_layer.target_hud.update_targets(targeting.locked_target, targeting.candidates, targeting.acquire_candidate, targeting.acquire_progress())
 
 func _on_died(_source: Node) -> void:
@@ -264,6 +265,8 @@ func _on_died(_source: Node) -> void:
 		aim_look.enabled = false
 		aim_look.reset()
 		mouse_stick.enabled = false
+		if World.ui_layer:
+			World.ui_layer.nose_indicator.clear()
 
 func _on_respawned() -> void:
 	if is_multiplayer_authority():

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://b3oyx14tsphfe"
+path="res://.godot/imported/Broom mouse 2.ogg-de275baf735fc61c6f5bda45b75d9c82.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sounds/Broom mouse 2.ogg"
+dest_files=["res://.godot/imported/Broom mouse 2.ogg-de275baf735fc61c6f5bda45b75d9c82.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0.0
+bpm=0.0
+beat_count=0
+bar_beats=4

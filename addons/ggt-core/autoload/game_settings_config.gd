@@ -9,12 +9,15 @@ signal resolution_scale_changed
 signal aim_sensitivity_changed(value: float)
 signal invert_flight_changed(value: bool)
 signal auto_level_changed(value: bool)
+signal show_boresight_changed(value: bool)
 
 const DEFAULT_AIM_SENSITIVITY := 0.05
 ## false = push forward to dive (airplane style). true = push forward to climb.
 const DEFAULT_INVERT_FLIGHT := false
 ## Roll back toward the horizon when there is no steering input.
 const DEFAULT_AUTO_LEVEL := false
+## Show the HUD boresight marker (where the nose points).
+const DEFAULT_SHOW_BORESIGHT := false
 
 const SUPPORTED_LOCALES = {
 	"en": "English",
@@ -69,6 +72,7 @@ func initialize_default_file() -> void:
 	config.set_value("controls", "aim_sensitivity", DEFAULT_AIM_SENSITIVITY)
 	config.set_value("controls", "invert_flight", DEFAULT_INVERT_FLIGHT)
 	config.set_value("controls", "auto_level", DEFAULT_AUTO_LEVEL)
+	config.set_value("hud", "show_boresight", DEFAULT_SHOW_BORESIGHT)
 	if not OS.has_feature('web'):
 		config.set_value("gfx", "fullscreen", true)
 		config.set_value("gfx", "vsync", true)
@@ -94,6 +98,7 @@ func _apply_settings() -> void:
 	aim_sensitivity_changed.emit(get_aim_sensitivity())
 	invert_flight_changed.emit(get_invert_flight())
 	auto_level_changed.emit(get_auto_level())
+	show_boresight_changed.emit(get_show_boresight())
 
 	if not OS.has_feature('web'):
 		var window_id = get_window().get_window_id()
@@ -165,6 +170,11 @@ func set_invert_flight(v: bool) -> void:
 func set_auto_level(v: bool) -> void:
 	config.set_value("controls", "auto_level", v)
 	auto_level_changed.emit(v)
+
+
+func set_show_boresight(v: bool) -> void:
+	config.set_value("hud", "show_boresight", v)
+	show_boresight_changed.emit(v)
 #endregion
 
 
@@ -187,4 +197,8 @@ func get_invert_flight() -> bool:
 
 func get_auto_level() -> bool:
 	return bool(config.get_value("controls", "auto_level", DEFAULT_AUTO_LEVEL))
+
+
+func get_show_boresight() -> bool:
+	return bool(config.get_value("hud", "show_boresight", DEFAULT_SHOW_BORESIGHT))
 #endregion

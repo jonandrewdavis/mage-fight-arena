@@ -20,6 +20,7 @@ signal confirm_button_clicked
 @export var aim_sensitivity_value: Label
 @export var invert_flight_checkbox: CheckButton
 @export var auto_level_checkbox: CheckButton
+@export var show_boresight_checkbox: CheckButton
 @export var reset_confirmation_dialog: ConfirmationModal
 @export var cancel_confirmation_dialog: ConfirmationModal
 @export var cancel_button: Button
@@ -43,6 +44,7 @@ func _ready() -> void:
 	aim_sensitivity_slider.value_changed.connect(on_aim_sensitivity_slider)
 	invert_flight_checkbox.toggled.connect(on_invert_flight_checkbox)
 	auto_level_checkbox.toggled.connect(on_auto_level_checkbox)
+	show_boresight_checkbox.toggled.connect(on_show_boresight_checkbox)
 	reset_confirmation_dialog.confirmed.connect(_on_reset_confirmed)
 	cancel_confirmation_dialog.confirmed.connect(_on_cancel_confirmed)
 	reset_confirmation_dialog.cancelled.connect(_on_modal_canceled)
@@ -59,6 +61,7 @@ func _ready() -> void:
 	aim_sensitivity_slider.value_changed.connect(_on_setting_changed)
 	invert_flight_checkbox.toggled.connect(_on_setting_changed)
 	auto_level_checkbox.toggled.connect(_on_setting_changed)
+	show_boresight_checkbox.toggled.connect(_on_setting_changed)
 
 	initialize()
 
@@ -133,6 +136,7 @@ func initialize(cfg: ConfigFile = GGT_GameConfig.config) -> void:
 	aim_sensitivity_value.text = str(aim_sensitivity_slider.value)
 	invert_flight_checkbox.set_pressed_no_signal(cfg.get_value("controls", "invert_flight", GGT_GameConfig.DEFAULT_INVERT_FLIGHT))
 	auto_level_checkbox.set_pressed_no_signal(cfg.get_value("controls", "auto_level", GGT_GameConfig.DEFAULT_AUTO_LEVEL))
+	show_boresight_checkbox.set_pressed_no_signal(cfg.get_value("hud", "show_boresight", GGT_GameConfig.DEFAULT_SHOW_BORESIGHT))
 
 
 func on_sound_master_slider(value: float) -> void:
@@ -180,6 +184,10 @@ func on_invert_flight_checkbox(value: bool) -> void:
 
 func on_auto_level_checkbox(value: bool) -> void:
 	GGT_GameConfig.set_auto_level(value)
+
+
+func on_show_boresight_checkbox(value: bool) -> void:
+	GGT_GameConfig.set_show_boresight(value)
 
 
 func _on_settings_cancel_button_pressed() -> void:

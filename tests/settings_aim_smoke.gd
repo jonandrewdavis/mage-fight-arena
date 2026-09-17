@@ -31,7 +31,16 @@ func _ready() -> void:
 	assert(not menu.auto_level_checkbox.button_pressed, "auto level defaults off")
 	menu.auto_level_checkbox.button_pressed = true
 	assert(GGT_GameConfig.get_auto_level(), "auto level checkbox writes config")
+	var nose := NoseIndicator.new()
+	add_child(nose)
+	assert(menu.show_boresight_checkbox != null, "boresight checkbox path resolves")
+	assert(not menu.show_boresight_checkbox.button_pressed, "boresight defaults off")
+	assert(not nose.visible, "NoseIndicator hidden by default")
+	menu.show_boresight_checkbox.button_pressed = true
+	assert(GGT_GameConfig.get_show_boresight(), "boresight checkbox writes config")
+	assert(nose.visible, "NoseIndicator follows config signal")
 	GGT_GameConfig.reset()
+	assert(not nose.visible, "reset hides boresight")
 	assert(not GGT_GameConfig.get_auto_level(), "reset restores auto level off")
 	assert(is_equal_approx(aim.sensitivity, GGT_GameConfig.DEFAULT_AIM_SENSITIVITY), "reset restores default")
 	assert(stick.invert_y == GGT_GameConfig.DEFAULT_INVERT_FLIGHT, "reset restores invert default")

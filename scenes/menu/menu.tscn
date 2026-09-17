@@ -3,8 +3,48 @@
 [ext_resource type="Theme" uid="uid://brfyamk8dn0ef" path="res://resources/theme/theme_casual_pop.tres" id="1_y1o0p"]
 [ext_resource type="PackedScene" uid="uid://c2jxemjmao00b" path="res://addons/ggt-core/settings/settings_menu.tscn" id="3_e0arn"]
 [ext_resource type="Script" uid="uid://cvc42inud8fxx" path="res://scenes/menu/menu.gd" id="5"]
+[ext_resource type="Shader" uid="uid://cjpig6pptg3jv" path="res://resources/shaders/sky_test_1.gdshader" id="6_r8yej"]
 [ext_resource type="PackedScene" path="res://scenes/menu/host_panel.tscn" id="host"]
 [ext_resource type="PackedScene" path="res://scenes/menu/join_panel.tscn" id="join"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3y2rt"]
+shader = ExtResource("6_r8yej")
+shader_parameter/day_top_color = Color(0.1, 0.6, 1, 1)
+shader_parameter/day_bottom_color = Color(0.4, 0.8, 1, 1)
+shader_parameter/sunset_top_color = Color(0.7, 0.75, 1, 1)
+shader_parameter/sunset_bottom_color = Color(1, 0.5, 0.7, 1)
+shader_parameter/night_top_color = Color(0.02, 0, 0.04, 1)
+shader_parameter/night_bottom_color = Color(0.1, 0, 0.2, 1)
+shader_parameter/horizon_color = Color(0.02874431, 0.046752162, 0.028747441, 1)
+shader_parameter/horizon_blur = 0.05
+shader_parameter/sun_color = Color(10, 8, 1, 1)
+shader_parameter/sun_sunset_color = Color(10, 0, 0, 1)
+shader_parameter/sun_size = 0.2
+shader_parameter/sun_blur = 10.0
+shader_parameter/moon_color = Color(1, 0.95, 0.7, 1)
+shader_parameter/moon_size = 0.06
+shader_parameter/moon_blur = 0.1
+shader_parameter/clouds_edge_color = Color(0.8, 0.8, 0.98, 1)
+shader_parameter/clouds_top_color = Color(1, 1, 1, 1)
+shader_parameter/clouds_middle_color = Color(0.92, 0.92, 0.98, 1)
+shader_parameter/clouds_bottom_color = Color(0.83, 0.83, 0.94, 1)
+shader_parameter/clouds_speed = 2.0
+shader_parameter/clouds_direction = 0.2
+shader_parameter/clouds_scale = 1.0
+shader_parameter/clouds_cutoff = 0.3
+shader_parameter/clouds_fuzziness = 0.5
+shader_parameter/clouds_weight = 0.0
+shader_parameter/clouds_blur = 0.25
+shader_parameter/stars_speed = 1.0
+shader_parameter/overwritten_time = 0.0
+
+[sub_resource type="Sky" id="Sky_xepkr"]
+sky_material = SubResource("ShaderMaterial_3y2rt")
+
+[sub_resource type="Environment" id="Environment_t0a87"]
+background_mode = 2
+background_energy_multiplier = 2.0
+sky = SubResource("Sky_xepkr")
 
 [node name="Menu" type="Control" unique_id=1641158152]
 layout_mode = 3
@@ -16,7 +56,24 @@ grow_vertical = 2
 theme = ExtResource("1_y1o0p")
 script = ExtResource("5")
 
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=143605497]
+layout_mode = 0
+offset_right = 2560.0
+offset_bottom = 2048.0
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer" unique_id=574536144]
+handle_input_locally = false
+size = Vector2i(2560, 2048)
+render_target_update_mode = 4
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewportContainer/SubViewport" unique_id=1094187388]
+environment = SubResource("Environment_t0a87")
+
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/WorldEnvironment" unique_id=67945875]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 26)
+
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1540281165]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -86,7 +143,7 @@ layout_mode = 2
 theme_type_variation = &"LabelSmall"
 autowrap_mode = 2
 
-[node name="MatchmakeButton" type="Button" parent="MainContainer/Control/VBoxContainer"]
+[node name="MatchmakeButton" type="Button" parent="MainContainer/Control/VBoxContainer" unique_id=1942751095]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"PrimaryButton"
@@ -210,7 +267,7 @@ visible = false
 layout_mode = 2
 text = "CLOSE"
 
-[node name="CancelButton" type="Button" parent="PendingOverlay/CenterContainer/VBoxContainer"]
+[node name="CancelButton" type="Button" parent="PendingOverlay/CenterContainer/VBoxContainer" unique_id=1946673567]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
