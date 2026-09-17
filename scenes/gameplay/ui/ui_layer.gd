@@ -36,6 +36,16 @@ func _ready() -> void:
 	elif not exiting:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+## macOS releases the capture when the window loses focus; take it back when the game is in front
+## and no menu is open.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_APPLICATION_FOCUS_IN or exiting or not is_node_ready():
+		return
+	var pause := get_node_or_null("PauseLayer") as CanvasLayer
+	if pause != null and not pause.visible and MultiplayerService.in_lobby and not GGT.is_changing_scene():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
 func _on_game_exited() -> void:
 	if exiting:
 		return

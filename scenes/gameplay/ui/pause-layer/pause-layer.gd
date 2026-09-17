@@ -14,6 +14,8 @@ func _ready() -> void:
 		if not %SettingsMenu.visible:
 			%ResumeButton.grab_focus())
 	%SettingsMenu.confirm_button_clicked.connect(func() -> void: %SettingsMenu.hide())
+	# Any path that closes the menu (Resume, Tab, Esc, code) must hand the mouse back to the game.
+	visibility_changed.connect(_sync_mouse_mode)
 	multiplayer.peer_connected.connect(_add_player)
 	multiplayer.peer_disconnected.connect(_remove_player)
 	_add_player(multiplayer.get_unique_id())
@@ -50,7 +52,13 @@ func _toggle() -> void:
 func resume() -> void:
 	%SettingsMenu.hide()
 	hide()
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	_sync_mouse_mode()
+
+## Captured while playing, visible while any menu is up. Safe to call repeatedly.
+func _sync_mouse_mode() -> void:
+	if not is_inside_tree() or GGT.is_changing_scene() or not MultiplayerService.in_lobby:
+		return
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if visible else Input.MOUSE_MODE_CAPTURED
 
 func _add_player(peer_id: int) -> void:
 	if players.has(peer_id):
