@@ -17,6 +17,8 @@ class_name PlayerMage
 ## Remote peers snap instead of lerping when the error exceeds this distance (respawn, teleport, long hitch).
 @export_range(1.0, 500.0, 1.0) var snap_distance := 25.0
 @export_group("")
+## Used when auto-level is on but the profile's auto_level_speed is 0. Degrees/sec.
+@export_range(1.0, 360.0) var default_auto_level_speed := 60.0
 @onready var trail_3d: Trail3D = %Trail3D
 
 #@onready var prop = $Plane2/Plane/propellor
@@ -28,6 +30,7 @@ class_name PlayerMage
 @onready var mana: ManaComponent = %ManaComponent
 @onready var arena_tracker: ArenaTracker = %ArenaTracker
 @onready var aim_look: AimLook = %AimLook
+@onready var mouse_stick: MouseStick = %MouseStick
 @onready var muzzle: Marker3D = %Muzzle
 
 var current_speed := 0.0
@@ -35,6 +38,8 @@ var turn_input =  Vector2()
 var _turn_velocity := Vector3.ZERO # rad/s per axis (pitch, yaw, roll), smoothed toward stick target
 var _velocity_dir := Vector3.FORWARD # travel direction, lags facing when profile.drift > 0
 var _spawn_transform := Transform3D.IDENTITY
+## Player setting (controls/auto_level). Off by default; the profile only sets the rate.
+var auto_level := false
 ## Replicated by MultiplayerSynchronizer. Authority writes these; remote peers interpolate toward them.
 var net_position := Vector3.ZERO
 var net_quaternion := Quaternion.IDENTITY
@@ -51,10 +56,15 @@ func _ready() -> void:
 	current_speed = profile.base_speed
 	_reset_motion_state()
 	_spawn_transform = global_transform
+	var config := get_node_or_null("/root/GGT_GameConfig")
+	if config:
+		auto_level = config.get_auto_level()
+		config.auto_level_changed.connect(func(value: bool) -> void: auto_level = value)
 	health.died.connect(_on_died)
 	health.respawned.connect(_on_respawned)
 	targeting.enabled = is_multiplayer_authority()
 	aim_look.enabled = is_multiplayer_authority()
+	mouse_stick.enabled = is_multiplayer_authority()
 	weapon.set_owner_body(self)
 	if is_multiplayer_authority():
 		_publish_net_state()
@@ -87,9 +97,10 @@ func _physics_process(delta: float) -> void:
 		weapon.update_weapon(delta, false, null)
 		render_ui_layer_elements()
 		return
+	# Mouse is a virtual analog stick (x = yaw, y = pitch). WASD still adds so the keyboard works alone.
 	var input = Input.get_vector("left","right","down","up")
 	var roll = clampf(Input.get_axis("roll_left","roll_right"), -1.0, 1.0)
-	turn_input = input
+	turn_input = (input + mouse_stick.value).limit_length(1.0)
 
 	_update_speed(delta)
 	velocity = _travel_direction(delta) * current_speed
@@ -188,15 +199,16 @@ func _travel_direction(delta: float) -> Vector3:
 func bank_angle() -> float:
 	return atan2(basis.x.dot(Vector3.UP), basis.y.dot(Vector3.UP))
 
-## Roll toward level with the horizon. Called only when there is no stick input.
+## Roll toward level with the horizon. Called only when there is no stick input and the setting is on.
 func _auto_level(delta: float) -> void:
-	if profile.auto_level_speed <= 0.0:
+	if not auto_level:
 		return
+	var speed := profile.auto_level_speed if profile.auto_level_speed > 0.0 else default_auto_level_speed
 	# Near vertical the horizon is ambiguous; leave the roll alone.
 	if absf(basis.z.dot(Vector3.UP)) > 0.95:
 		return
 	var bank := bank_angle()
-	var step := minf(deg_to_rad(profile.auto_level_speed) * delta, absf(bank))
+	var step := minf(deg_to_rad(speed) * delta, absf(bank))
 	rotate(basis.z, -signf(bank) * step)
 
 ## vector = (pitch, yaw, roll) stick input in -1..1.
@@ -238,6 +250,7 @@ func render_ui_layer_elements():
 		World.ui_layer.health_progress_bar.value = health.current
 		World.ui_layer.mana_progress_bar.max_value = mana.max_value
 		World.ui_layer.mana_progress_bar.value = mana.current
+		World.ui_layer.stick_reticle.update_stick(mouse_stick.display_value(), mouse_stick.radius_px, mouse_stick.dead_zone)
 		World.ui_layer.target_hud.update_targets(targeting.locked_target, targeting.candidates, targeting.acquire_candidate, targeting.acquire_progress())
 
 func _on_died(_source: Node) -> void:
@@ -250,6 +263,7 @@ func _on_died(_source: Node) -> void:
 		targeting.enabled = false
 		aim_look.enabled = false
 		aim_look.reset()
+		mouse_stick.enabled = false
 
 func _on_respawned() -> void:
 	if is_multiplayer_authority():
@@ -262,6 +276,7 @@ func _on_respawned() -> void:
 		mana.refill()
 		targeting.enabled = true
 		aim_look.enabled = true
+		mouse_stick.enabled = true
 	else:
 		_snap_to_net_state()
 	trail_3d.clear()

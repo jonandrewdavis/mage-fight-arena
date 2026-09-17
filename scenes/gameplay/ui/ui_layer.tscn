@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://nbqhuft1wkg8" path="res://scenes/gameplay/ui/controls.tscn" id="2_1aqtp"]
 [ext_resource type="PackedScene" uid="uid://barl4q1kugrmm" path="res://scenes/gameplay/ui/pause-layer/pause-layer.tscn" id="3_n2icj"]
 [ext_resource type="Script" path="res://scenes/gameplay/ui/target_hud.gd" id="4_thud"]
+[ext_resource type="Script" uid="uid://c13wkl6nlblwa" path="res://scenes/gameplay/ui/stick_reticle.gd" id="5_reticle"]
 
 [sub_resource type="Gradient" id="Gradient_oq6q8"]
 colors = PackedColorArray(0.09736288, 9.126794e-05, 0.2960626, 1, 0.4272387, 0.31936294, 0.22836813, 1)
@@ -130,6 +131,19 @@ min_value = -100.0
 value = 50.0
 fill_mode = 4
 texture_progress = SubResource("GradientTexture2D_4i8qy")
+
+[node name="StickReticle" type="Control" parent="PlayerUI"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_reticle")
 
 [node name="MarginContainer" type="MarginContainer" parent="PlayerUI" unique_id=1386433855]
 layout_mode = 1

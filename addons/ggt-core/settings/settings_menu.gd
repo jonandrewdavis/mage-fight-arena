@@ -18,6 +18,8 @@ signal confirm_button_clicked
 @export var locale_option_button: OptionButton
 @export var aim_sensitivity_slider: HSlider
 @export var aim_sensitivity_value: Label
+@export var invert_flight_checkbox: CheckButton
+@export var auto_level_checkbox: CheckButton
 @export var reset_confirmation_dialog: ConfirmationModal
 @export var cancel_confirmation_dialog: ConfirmationModal
 @export var cancel_button: Button
@@ -39,6 +41,8 @@ func _ready() -> void:
 	fullscreen_checkbox.toggled.connect(on_fullscreen_checkbox)
 	locale_option_button.item_selected.connect(on_locale_option_button_item_selected)
 	aim_sensitivity_slider.value_changed.connect(on_aim_sensitivity_slider)
+	invert_flight_checkbox.toggled.connect(on_invert_flight_checkbox)
+	auto_level_checkbox.toggled.connect(on_auto_level_checkbox)
 	reset_confirmation_dialog.confirmed.connect(_on_reset_confirmed)
 	cancel_confirmation_dialog.confirmed.connect(_on_cancel_confirmed)
 	reset_confirmation_dialog.cancelled.connect(_on_modal_canceled)
@@ -53,6 +57,8 @@ func _ready() -> void:
 	fullscreen_checkbox.toggled.connect(_on_setting_changed)
 	locale_option_button.item_selected.connect(_on_setting_changed)
 	aim_sensitivity_slider.value_changed.connect(_on_setting_changed)
+	invert_flight_checkbox.toggled.connect(_on_setting_changed)
+	auto_level_checkbox.toggled.connect(_on_setting_changed)
 
 	initialize()
 
@@ -125,6 +131,8 @@ func initialize(cfg: ConfigFile = GGT_GameConfig.config) -> void:
 
 	aim_sensitivity_slider.set_value_no_signal(cfg.get_value("controls", "aim_sensitivity", GGT_GameConfig.DEFAULT_AIM_SENSITIVITY))
 	aim_sensitivity_value.text = str(aim_sensitivity_slider.value)
+	invert_flight_checkbox.set_pressed_no_signal(cfg.get_value("controls", "invert_flight", GGT_GameConfig.DEFAULT_INVERT_FLIGHT))
+	auto_level_checkbox.set_pressed_no_signal(cfg.get_value("controls", "auto_level", GGT_GameConfig.DEFAULT_AUTO_LEVEL))
 
 
 func on_sound_master_slider(value: float) -> void:
@@ -164,6 +172,14 @@ func on_locale_option_button_item_selected(index: int) -> void:
 func on_aim_sensitivity_slider(value: float) -> void:
 	GGT_GameConfig.set_aim_sensitivity(value)
 	aim_sensitivity_value.text = str(value)
+
+
+func on_invert_flight_checkbox(value: bool) -> void:
+	GGT_GameConfig.set_invert_flight(value)
+
+
+func on_auto_level_checkbox(value: bool) -> void:
+	GGT_GameConfig.set_auto_level(value)
 
 
 func _on_settings_cancel_button_pressed() -> void:

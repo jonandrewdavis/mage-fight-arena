@@ -9,6 +9,7 @@ var exiting := false
 @onready var mana_progress_bar: TextureProgressBar = %ManaProgressBar
 @onready var roll_texture_bar: TextureProgressBar = %RollTextureBar
 @onready var target_hud: TargetHud = %TargetHud
+@onready var stick_reticle: StickReticle = %StickReticle
 @onready var arena_warning: Label = %ArenaWarning
 @onready var arena_allowance: ProgressBar = %ArenaAllowance
 

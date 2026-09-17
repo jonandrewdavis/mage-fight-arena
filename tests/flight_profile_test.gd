@@ -92,7 +92,9 @@ func _run() -> void:
 				dir = player._travel_direction(dt)
 			assert(dir.dot(-player.basis.z) > 0.99, "drift should converge on facing")
 
-	# Auto level: rolled mage returns to horizon when coasting at base speed with no input.
+	# Auto level: rolled mage returns to horizon when coasting with no input, only if the setting is on.
+	assert(not player.auto_level, "auto level setting defaults to off")
+	player.auto_level = true
 	player.set_profile(profiles["character"])
 	player.basis = Basis.IDENTITY
 	player._reset_motion_state()
@@ -112,7 +114,13 @@ func _run() -> void:
 	player.current_speed = profiles["original"].base_speed
 	for i in 60:
 		player.apply_rotation(Vector3.ZERO, dt)
-	assert(absf(rad_to_deg(player.bank_angle()) - 30.0) < 0.01, "original has auto level off")
+	assert(absf(player.bank_angle()) < 0.001, "original (profile rate 0) levels at the default rate when the setting is on")
+	player.auto_level = false
+	player.set_profile(profiles["character"])
+	player.rotate(player.basis.z, deg_to_rad(30.0) - player.bank_angle())
+	for i in 60:
+		player.apply_rotation(Vector3.ZERO, dt)
+	assert(absf(rad_to_deg(player.bank_angle()) - 30.0) < 0.01, "setting off disables auto level even with a profile rate")
 
 	# Null profile falls back to defaults matching the original hard-coded values.
 	var bare = load("res://player/mage/player_mage.tscn").instantiate()

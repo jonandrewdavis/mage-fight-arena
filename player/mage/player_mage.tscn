@@ -18,6 +18,7 @@
 [ext_resource type="Resource" uid="uid://11xb5v8mdc6f" path="res://player/mage/profiles/broom_drift.tres" id="14_broom"]
 [ext_resource type="Script" uid="uid://bbclo6oy1vxa0" path="res://player/mage/flight_profile.gd" id="15_flight_profile"]
 [ext_resource type="Script" uid="uid://be1trcobagwvn" path="res://player/mage/aim_look.gd" id="20_aim"]
+[ext_resource type="Script" uid="uid://dn16k2x2otli4" path="res://player/mage/mouse_stick.gd" id="21_stick"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kaddv"]
 
@@ -130,3 +131,7 @@ regen_delay = 0.5
 unique_name_in_owner = true
 script = ExtResource("20_aim")
 return_speed = 4.0
+
+[node name="MouseStick" type="Node" parent="." unique_id=1363064727]
+unique_name_in_owner = true
+script = ExtResource("21_stick")

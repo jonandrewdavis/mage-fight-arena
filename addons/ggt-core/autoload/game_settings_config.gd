@@ -7,8 +7,14 @@ var config = ConfigFile.new()
 
 signal resolution_scale_changed
 signal aim_sensitivity_changed(value: float)
+signal invert_flight_changed(value: bool)
+signal auto_level_changed(value: bool)
 
 const DEFAULT_AIM_SENSITIVITY := 0.05
+## false = push forward to dive (airplane style). true = push forward to climb.
+const DEFAULT_INVERT_FLIGHT := false
+## Roll back toward the horizon when there is no steering input.
+const DEFAULT_AUTO_LEVEL := false
 
 const SUPPORTED_LOCALES = {
 	"en": "English",
@@ -61,6 +67,8 @@ func initialize_default_file() -> void:
 	config.set_value("gfx", "resolution_scale", 1.0)
 	config.set_value("gfx", "fps_limit", 60)
 	config.set_value("controls", "aim_sensitivity", DEFAULT_AIM_SENSITIVITY)
+	config.set_value("controls", "invert_flight", DEFAULT_INVERT_FLIGHT)
+	config.set_value("controls", "auto_level", DEFAULT_AUTO_LEVEL)
 	if not OS.has_feature('web'):
 		config.set_value("gfx", "fullscreen", true)
 		config.set_value("gfx", "vsync", true)
@@ -84,6 +92,8 @@ func _apply_settings() -> void:
 
 	TranslationServer.set_locale(config.get_value("game", "locale", "en"))
 	aim_sensitivity_changed.emit(get_aim_sensitivity())
+	invert_flight_changed.emit(get_invert_flight())
+	auto_level_changed.emit(get_auto_level())
 
 	if not OS.has_feature('web'):
 		var window_id = get_window().get_window_id()
@@ -145,6 +155,16 @@ func set_locale(locale: String) -> void:
 func set_aim_sensitivity(v: float) -> void:
 	config.set_value("controls", "aim_sensitivity", v)
 	aim_sensitivity_changed.emit(v)
+
+
+func set_invert_flight(v: bool) -> void:
+	config.set_value("controls", "invert_flight", v)
+	invert_flight_changed.emit(v)
+
+
+func set_auto_level(v: bool) -> void:
+	config.set_value("controls", "auto_level", v)
+	auto_level_changed.emit(v)
 #endregion
 
 
@@ -159,4 +179,12 @@ func get_locale() -> String:
 
 func get_aim_sensitivity() -> float:
 	return float(config.get_value("controls", "aim_sensitivity", DEFAULT_AIM_SENSITIVITY))
+
+
+func get_invert_flight() -> bool:
+	return bool(config.get_value("controls", "invert_flight", DEFAULT_INVERT_FLIGHT))
+
+
+func get_auto_level() -> bool:
+	return bool(config.get_value("controls", "auto_level", DEFAULT_AUTO_LEVEL))
 #endregion
