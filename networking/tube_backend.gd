@@ -4,7 +4,13 @@ extends MultiplayerBackend
 const CONTEXT: TubeContext = preload("uid://334o3kg81fih")
 const TRACKER_TIMEOUT := 5.0
 const LOST_REASON := "Disconnected from host."
+const TURN_URL := "https://api.androodev.com/turn_complete"
+const TURN_TIMEOUT := 5.0
+const TURN_CACHE_SEC := 300.0
+const TURN_FALLBACK_STATUS := "TURN unavailable; using STUN only."
 enum Phase {IDLE, HOSTING, JOINING, IN_SESSION}
+
+signal _ice_fetch_done
 
 var client: TubeClient
 var phase := Phase.IDLE
@@ -14,10 +20,17 @@ var lobby_name := ""
 var leaving := false
 var listing := false
 var listing_ready := false
+var _http: HTTPRequest
+var _ice_fetched_msec := -1
+var _ice_fetching := false
 
 func _ready() -> void:
+	_http = HTTPRequest.new()
+	_http.timeout = TURN_TIMEOUT
+	add_child(_http)
 	client = TubeClient.new()
-	client.context = CONTEXT
+	# Duplicated so runtime TURN injection never mutates the preloaded resource.
+	client.context = CONTEXT.duplicate()
 	client.tracker_connect_timeout = TRACKER_TIMEOUT
 	client.multiplayer_api = get_tree().get_multiplayer()
 	client.session_created.connect(_on_session_created)
@@ -37,6 +50,9 @@ func host_game(options: HostOptions) -> void:
 	max_players = options.max_players
 	_stop_listing()
 	phase = Phase.HOSTING
+	await _ensure_ice_servers()
+	if phase != Phase.HOSTING:
+		return
 	client.create_session()
 	if phase != Phase.HOSTING:
 		return
@@ -46,9 +62,62 @@ func host_game(options: HostOptions) -> void:
 func join_game(address: Variant) -> void:
 	_stop_listing()
 	phase = Phase.JOINING
+	await _ensure_ice_servers()
+	if phase != Phase.JOINING:
+		return
 	client.join_session(str(address).strip_edges())
 	if phase == Phase.JOINING:
 		status_changed.emit("Connecting to session...")
+
+## Fetches TURN credentials into client.context before a host/join. Falls back to STUN-only on
+## any failure so play is never blocked by the credential API.
+func _ensure_ice_servers() -> void:
+	if _ice_fetched_msec >= 0 and Time.get_ticks_msec() - _ice_fetched_msec < TURN_CACHE_SEC * 1000.0:
+		return
+	if _ice_fetching:
+		await _ice_fetch_done
+		return
+	_ice_fetching = true
+	status_changed.emit("Fetching TURN credentials...")
+	var servers: Array[Dictionary] = []
+	if _http.request(TURN_URL) == OK:
+		var result: Array = await _http.request_completed
+		if result[0] == HTTPRequest.RESULT_SUCCESS and result[1] == 200:
+			servers = parse_ice_servers(result[3])
+	if servers.is_empty():
+		push_warning("TURN fetch failed: " + TURN_URL)
+		status_changed.emit(TURN_FALLBACK_STATUS)
+	else:
+		client.context.turn_servers = servers
+		_ice_fetched_msec = Time.get_ticks_msec()
+	_ice_fetching = false
+	_ice_fetch_done.emit()
+
+## Parses a {"iceServers": [{"urls": ..., "username": ..., "credential": ...}]} body into the
+## entry shape TubeContext.turn_servers expects. Malformed input yields an empty array.
+static func parse_ice_servers(body: PackedByteArray) -> Array[Dictionary]:
+	var servers: Array[Dictionary] = []
+	var json := JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK:
+		return servers
+	var parsed: Variant = json.data
+	if not parsed is Dictionary or not parsed.get("iceServers") is Array:
+		return servers
+	for entry: Variant in parsed.iceServers:
+		if not entry is Dictionary:
+			continue
+		var urls: Variant = entry.get("urls")
+		if urls is Array:
+			if urls.is_empty() or urls.any(func(u: Variant) -> bool: return not u is String):
+				continue
+		elif not urls is String:
+			continue
+		var server := {"urls": urls}
+		for key in ["username", "credential"]:
+			if entry.get(key) is String:
+				server[key] = entry[key]
+		servers.append(server)
+	return servers
 
 func _on_session_created() -> void:
 	if phase != Phase.HOSTING:
